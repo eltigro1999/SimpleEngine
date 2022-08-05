@@ -3,6 +3,6 @@
 
 int main() {
 	std::cout << "Hello from simple engine editor!" << std::endl;
-	SimpleEngine::SayHello();
+	SimpleEngine::checkGLFW();
 	return 0;
 }

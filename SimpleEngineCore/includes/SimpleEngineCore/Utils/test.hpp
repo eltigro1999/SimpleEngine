@@ -1,3 +1,3 @@
 namespace SimpleEngine {
-	void SayHello();
+	int checkGLFW();
 }
