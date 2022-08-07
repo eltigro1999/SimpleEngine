@@ -1,11 +1,14 @@
-#pragma once
 #include "SimpleEngineCore/Application.hpp"
 #include <GLFW/glfw3.h>
 #include <iostream>
+#include "SimpleEngineCore/Log.hpp"
 
 namespace SimpleEngine{
 	Application::Application() {
-
+        LOG_INFO("Welcome to spdlog");
+        LOG_WARN("Warning");
+        LOG_ERROR("Error");
+        LOG_CRITICAL("CRITICAL");
 	}
 
 	Application::~Application() {
