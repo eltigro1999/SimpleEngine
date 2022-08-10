@@ -47,15 +47,21 @@ namespace SimpleEngine{
         glfwSetWindowSizeCallback(m_pWindow,
             [](GLFWwindow* pWindow, int width, int height)
             {
-                WindowData& data=*static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+                WindowData& data = *static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
                 data.width = width;
                 data.height = height;
 
-                Event _event;
-                _event.height = height;
-                _event.width = width;
+                EventWindowResize _event(width, height);
                 data.eventCallbackFn(_event);
-            }
+            });
+
+            glfwSetCursorPosCallback(m_pWindow, 
+                [](GLFWwindow* pWindow, double x, double y)
+                {
+                    WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow)));
+                    EventMouseMoved _event(x,y);
+                    data.eventCallbackFn(_event);
+                }
         );
 
         return 0;
