@@ -8,14 +8,14 @@ namespace SimpleEngine{
 
     static bool s_GLFW_initialized=false;
 
-	Window::Window(const std::string& title, const unsigned int& width, const unsigned int& height): 
-		m_title(title), m_width(width), m_height(height)
+    Window::Window(const std::string& title, const unsigned int& width, const unsigned int& height) :
+        m_data({ std::move(title), width ,height })
 	{
 		int returnCode = init();
 	}
 
 	int Window::init() {
-        LOG_INFO("Creating a window {0} width size {1}x{2}", m_title, m_width, m_height);
+        LOG_INFO("Creating a window {0} width size {1}x{2}", m_data.title, m_data.width, m_data.height);
 
         /* Initialize the library */
         if (!s_GLFW_initialized) {
@@ -27,10 +27,10 @@ namespace SimpleEngine{
         }
 
         /* Create a windowed mode window and its OpenGL context */
-        m_pWindow = glfwCreateWindow(m_width, m_height, m_title.c_str(), nullptr, nullptr);
+        m_pWindow = glfwCreateWindow(m_data.width, m_data.height, m_data.title.c_str(), nullptr, nullptr);
         if (!m_pWindow)
         {
-            LOG_CRITICAL("Can't create a window ''{0}'' width size {1}x{2}!", m_title, m_width, m_height);
+            LOG_CRITICAL("Can't create a window {0} width size {1}x{2}!", m_data.title, m_data.width, m_data.height);
             glfwTerminate();
             return -2;
         }
@@ -42,6 +42,21 @@ namespace SimpleEngine{
             LOG_CRITICAL("Failed to initialize GLAD");
             return -3;
         }
+        glfwSetWindowUserPointer(m_pWindow, &m_data);
+
+        glfwSetWindowSizeCallback(m_pWindow,
+            [](GLFWwindow* pWindow, int width, int height)
+            {
+                WindowData& data=*static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow));
+                data.width = width;
+                data.height = height;
+
+                Event _event;
+                _event.height = height;
+                _event.width = width;
+                data.eventCallbackFn(_event);
+            }
+        );
 
         return 0;
 	}
