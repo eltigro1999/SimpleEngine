@@ -4,14 +4,21 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include <imgui/imgui.h>
+#include <imgui/backends/imgui_impl_opengl3.h>
+
 namespace SimpleEngine{
 
     static bool s_GLFW_initialized=false;
 
     Window::Window(const std::string& title, const unsigned int& width, const unsigned int& height) :
-        m_data({ std::move(title), width ,height })
+        m_data({ title, width ,height })
 	{
 		int returnCode = init();
+
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGui_ImplOpenGL3_Init();
 	}
 
 	int Window::init() {
@@ -80,13 +87,26 @@ namespace SimpleEngine{
 
 	void Window::on_update() {
         glClearColor(1, 0, 0, 0);
-
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
+
+        ImGuiIO& io = ImGui::GetIO();
+        io.DisplaySize.x = static_cast<float>(get_width());
+        io.DisplaySize.y = static_cast<float>(get_height());
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui::NewFrame();
+        
+        ImGui::ShowDemoWindow();
+        
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+
+
         /* Swap front and back buffers */
         glfwSwapBuffers(m_pWindow);
-
         /* Poll for and process events */
         glfwPollEvents();
     }
