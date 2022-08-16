@@ -29,7 +29,7 @@ namespace SimpleEngine{
 
 		m_event_dispatcher.add_event_listener<EventWindowClose>(
 			[&](EventWindowClose& _event) {
-				LOG_INFO("[Window close] Window closed");
+				LOG_INFO("[Window close] Window closed.");
 				m_bCloseWindow = true;
 			});
 
