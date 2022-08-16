@@ -3,7 +3,7 @@
 
 #include <string>
 #include <functional>
-class GLFWwindow;
+struct GLFWwindow;
 
 namespace SimpleEngine {
 

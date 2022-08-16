@@ -6,6 +6,7 @@
 
 #include <imgui/imgui.h>
 #include <imgui/backends/imgui_impl_opengl3.h>
+#include <imgui/backends/imgui_impl_glfw.h>
 
 namespace SimpleEngine{
 
@@ -19,6 +20,7 @@ namespace SimpleEngine{
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplOpenGL3_Init();
+        ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
 	}
 
 	int Window::init() {
@@ -96,6 +98,7 @@ namespace SimpleEngine{
         io.DisplaySize.y = static_cast<float>(get_height());
 
         ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
         
         ImGui::ShowDemoWindow();
