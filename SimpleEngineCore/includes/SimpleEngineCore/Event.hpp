@@ -47,6 +47,13 @@ namespace SimpleEngine {
 		unsigned int height;
 	};
 
+	struct EventWindowClose : public BaseEvent {
+
+		virtual EventType get_type() const override { return type; }
+
+		static const EventType type = EventType::WindowClose;
+	};
+
 	class EventDispatcher {
 	public:
 		template<typename EventType>
@@ -67,9 +74,6 @@ namespace SimpleEngine {
 		}
 	private:
 		std::array<std::function<void(BaseEvent&)>, static_cast<size_t>(EventType::EventsCount)> m_eventCallbacks;
-		
-
-		//TODO dispatch
 	};
 
 

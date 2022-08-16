@@ -65,6 +65,16 @@ namespace SimpleEngine{
                 }
         );
 
+            glfwSetWindowCloseCallback(m_pWindow,
+                [](GLFWwindow* pWindow)
+                {
+                    WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow)));
+
+                    EventWindowClose _event;
+                    data.eventCallbackFn(_event);
+                }
+            );
+
         return 0;
 	}
 

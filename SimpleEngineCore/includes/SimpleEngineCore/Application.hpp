@@ -20,6 +20,7 @@ namespace SimpleEngine {
 
 	private:
 		std::unique_ptr<Window> m_pWindow;
+
 		EventDispatcher m_event_dispatcher;
 		bool m_bCloseWindow=false;
 	};
