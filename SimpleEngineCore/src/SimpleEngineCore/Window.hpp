@@ -9,7 +9,7 @@ namespace SimpleEngine {
 
 
 	class Window {
-		using EventCallbackFn = std::function<void(Event&)>;
+		using EventCallbackFn = std::function<void(BaseEvent&)>;
 	public:
 		Window(const std::string& title, const unsigned int& width, const unsigned int& height);
 		Window(const Window&) = delete;

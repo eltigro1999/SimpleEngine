@@ -59,6 +59,7 @@ namespace SimpleEngine{
                 [](GLFWwindow* pWindow, double x, double y)
                 {
                     WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow)));
+                    
                     EventMouseMoved _event(x,y);
                     data.eventCallbackFn(_event);
                 }

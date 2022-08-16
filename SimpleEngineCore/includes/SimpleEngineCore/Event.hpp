@@ -1,4 +1,6 @@
 #pragma once
+#include <array>
+#include <functional>
 
 namespace SimpleEngine {
 
@@ -27,7 +29,7 @@ namespace SimpleEngine {
 
 
 		virtual EventType get_type() const override { return type; }
-
+		 
 		static const EventType type=EventType::MouseMoved;
 		double x;
 		double y;
@@ -45,6 +47,30 @@ namespace SimpleEngine {
 		unsigned int height;
 	};
 
+	class EventDispatcher {
+	public:
+		template<typename EventType>
+		void add_event_listener(std::function<void(EventType&)> callback) {
+			auto baseCallback = [func = std::move(callback)](BaseEvent& e) {
+				if (e.get_type() == EventType::type) {
+					func(static_cast<EventType&>(e));
+				}
+			};
+			m_eventCallbacks[static_cast<size_t>(EventType::type)]=std::move(baseCallback);
+		}
+
+		void dispatch(BaseEvent& _event) {
+			auto& callback = m_eventCallbacks[static_cast<size_t>(_event.get_type())];
+			if (callback) {
+				callback(_event);
+			}
+		}
+	private:
+		std::array<std::function<void(BaseEvent&)>, static_cast<size_t>(EventType::EventsCount)> m_eventCallbacks;
+		
+
+		//TODO dispatch
+	};
 
 
 	struct Event{

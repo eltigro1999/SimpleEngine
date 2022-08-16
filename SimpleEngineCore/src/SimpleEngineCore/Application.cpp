@@ -17,9 +17,19 @@ namespace SimpleEngine{
 		
 		m_pWindow=std::make_unique<Window>(title, window_width, window_height);
 
-		m_pWindow->set_event_callback(
-			[](Event& _event) {
+		m_event_dispatcher.add_event_listener<EventMouseMoved>(
+			[](EventMouseMoved& _event) {
+				LOG_INFO("[EVENT] Mouse moved to {0}x{1}", _event.x, _event.y);
+			});
+
+		m_event_dispatcher.add_event_listener<EventWindowResize>(
+			[](EventWindowResize& _event) {
 				LOG_INFO("[EVENT] Changed size {0}x{1}", _event.width, _event.height);
+			});
+
+		m_pWindow->set_event_callback(
+			[&](BaseEvent& _event) {
+				m_event_dispatcher.dispatch(_event);
 			});
 
 		while (true) {
