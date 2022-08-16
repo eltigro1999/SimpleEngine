@@ -88,7 +88,8 @@ namespace SimpleEngine{
 	}
 
 	void Window::on_update() {
-        glClearColor(1, 0, 0, 0);
+        glClearColor(m_background_color[0], m_background_color[1],
+            m_background_color[2], m_background_color[3]);
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
@@ -102,6 +103,11 @@ namespace SimpleEngine{
         ImGui::NewFrame();
         
         ImGui::ShowDemoWindow();
+
+        ImGui::Begin("Background Color Window");    //Create a window
+        ImGui::ColorEdit4("Background Color", m_background_color);  //Create a widget
+        ImGui::End();   //Finish the window
+
         
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
