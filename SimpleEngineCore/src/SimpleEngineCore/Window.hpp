@@ -7,7 +7,6 @@ struct GLFWwindow;
 
 namespace SimpleEngine {
 
-
 	class Window {
 		using EventCallbackFn = std::function<void(BaseEvent&)>;
 	public:
