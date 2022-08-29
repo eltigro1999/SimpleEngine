@@ -122,6 +122,17 @@ namespace SimpleEngine{
         GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fs, 1, &fragment_shader, nullptr);
         glCompileShader(fs);
+        
+        shader_program = glCreateProgram();
+        glAttachShader(shader_program, vs);
+        glAttachShader(shader_program, fs);
+        glLinkProgram(shader_program);
+
+        //After program linking we can delete shaders
+
+        glDeleteShader(vs);
+        glDeleteShader(fs);
+
 
         return 0;
 	}
