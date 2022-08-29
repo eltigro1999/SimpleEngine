@@ -115,6 +115,14 @@ namespace SimpleEngine{
                     data.eventCallbackFn(_event);
                 }
             );
+
+            glfwSetFramebufferSizeCallback(m_pWindow,
+                [](GLFWwindow* pWindow, int width, int height)
+                {
+                    glViewport(0,0, width, height);
+                }
+            );
+
         GLuint vs = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vs, 1, &vertex_shader, nullptr);
         glCompileShader(vs);
@@ -162,6 +170,12 @@ namespace SimpleEngine{
             m_background_color[2], m_background_color[3]);
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
+
+
+        glUseProgram(shader_program);
+        glBindVertexArray(vao);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+
 
 
         ImGuiIO& io = ImGui::GetIO();
