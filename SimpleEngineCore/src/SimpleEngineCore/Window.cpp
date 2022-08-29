@@ -119,6 +119,10 @@ namespace SimpleEngine{
         glShaderSource(vs, 1, &vertex_shader, nullptr);
         glCompileShader(vs);
 
+        GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fs, 1, &fragment_shader, nullptr);
+        glCompileShader(fs);
+
         return 0;
 	}
 
