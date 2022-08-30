@@ -1,5 +1,6 @@
 #include "SimpleEngineCore/Window.hpp"
 #include "SimpleEngineCore/Log.hpp"
+#include "SimpleEngineCore/Rendering/OpenGL/ShaderProgram.hpp"
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -8,8 +9,8 @@
 #include <imgui/backends/imgui_impl_opengl3.h>
 #include <imgui/backends/imgui_impl_glfw.h>
 
-namespace SimpleEngine{
-    static bool s_GLFW_initialized=false;
+namespace SimpleEngine {
+    static bool s_GLFW_initialized = false;
 
     GLfloat points[] = {
         0.0f, 0.5f, 0.0f,
@@ -30,7 +31,7 @@ namespace SimpleEngine{
         "out vec3 color;"
         "void main(){"
         "   color = vertex_color;"
-        "   gl_Position=vec4(vertex_position, 1.0);"
+        "   gl_Position = vec4(vertex_position, 1.0);"
         "}";
 
     const char* fragment_shader =
@@ -38,24 +39,25 @@ namespace SimpleEngine{
         "in vec3 color;"
         "out vec4 frag_color;"
         "void main() {"
-        "   frag_color=vec4(color, 1.0);"
+        "   frag_color = vec4(color, 1.0);"
         "}";
 
-    GLuint shader_program;
+    std::unique_ptr<ShaderProgram> p_shader_program;
+    //GLuint shader_program;
     GLuint vao;
 
     Window::Window(const std::string& title, const unsigned int& width, const unsigned int& height) :
         m_data({ title, width ,height })
-	{
-		int returnCode = init();
+    {
+        int returnCode = init();
 
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();
         ImGui_ImplOpenGL3_Init();
         ImGui_ImplGlfw_InitForOpenGL(m_pWindow, true);
-	}
+    }
 
-	int Window::init() {
+    int Window::init() {
         LOG_INFO("Creating a window {0} width size {1}x{2}", m_data.title, m_data.width, m_data.height);
 
         /* Initialize the library */
@@ -96,52 +98,57 @@ namespace SimpleEngine{
                 data.eventCallbackFn(_event);
             });
 
-            glfwSetCursorPosCallback(m_pWindow, 
-                [](GLFWwindow* pWindow, double x, double y)
-                {
-                    WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow)));
-                    
-                    EventMouseMoved _event(x,y);
-                    data.eventCallbackFn(_event);
-                }
+        glfwSetCursorPosCallback(m_pWindow,
+            [](GLFWwindow* pWindow, double x, double y)
+            {
+                WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow)));
+
+                EventMouseMoved _event(x, y);
+                data.eventCallbackFn(_event);
+            }
         );
 
-            glfwSetWindowCloseCallback(m_pWindow,
-                [](GLFWwindow* pWindow)
-                {
-                    WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow)));
+        glfwSetWindowCloseCallback(m_pWindow,
+            [](GLFWwindow* pWindow)
+            {
+                WindowData& data = *(static_cast<WindowData*>(glfwGetWindowUserPointer(pWindow)));
 
-                    EventWindowClose _event;
-                    data.eventCallbackFn(_event);
-                }
-            );
+                EventWindowClose _event;
+                data.eventCallbackFn(_event);
+            }
+        );
 
-            glfwSetFramebufferSizeCallback(m_pWindow,
-                [](GLFWwindow* pWindow, int width, int height)
-                {
-                    glViewport(0,0, width, height);
-                }
-            );
+        glfwSetFramebufferSizeCallback(m_pWindow,
+            [](GLFWwindow* pWindow, int width, int height)
+            {
+                glViewport(0, 0, width, height);
+            }
+        );
 
-        GLuint vs = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vs, 1, &vertex_shader, nullptr);
-        glCompileShader(vs);
 
-        GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fs, 1, &fragment_shader, nullptr);
-        glCompileShader(fs);
-        
-        shader_program = glCreateProgram();
-        glAttachShader(shader_program, vs);
-        glAttachShader(shader_program, fs);
-        glLinkProgram(shader_program);
+        p_shader_program = std::make_unique<ShaderProgram>(vertex_shader, fragment_shader);
+        if (!p_shader_program->isCompiled()) {
+            return false;
+        }
+        //GLuint vs = glCreateShader(GL_VERTEX_SHADER);
+        //glShaderSource(vs, 1, &vertex_shader, nullptr);
+        //glCompileShader(vs);
 
-        //After program linking we can delete shaders
+        //GLuint fs = glCreateShader(GL_FRAGMENT_SHADER);
+        //glShaderSource(fs, 1, &fragment_shader, nullptr);
+        //glCompileShader(fs);
 
-        glDeleteShader(vs);
-        glDeleteShader(fs);
+        //shader_program = glCreateProgram();
+        //glAttachShader(shader_program, vs);
+        //glAttachShader(shader_program, fs);
+        //glLinkProgram(shader_program);
+        //
+        ////After program linking we can delete shaders
 
-        GLuint points_vbo=0;
+        //glDeleteShader(vs);
+        //glDeleteShader(fs);
+
+        GLuint points_vbo = 0;
         glGenBuffers(1, &points_vbo);
         glBindBuffer(GL_ARRAY_BUFFER, points_vbo);//make this buffer current
         glBufferData(GL_ARRAY_BUFFER, sizeof(points), points, GL_STATIC_DRAW);
@@ -150,10 +157,10 @@ namespace SimpleEngine{
         glGenBuffers(1, &colors_vbo);
         glBindBuffer(GL_ARRAY_BUFFER, colors_vbo);//make this buffer current
         glBufferData(GL_ARRAY_BUFFER, sizeof(colors), colors, GL_STATIC_DRAW);
-        
+
         glGenVertexArrays(1, &vao);
         glBindVertexArray(vao);
-        
+
         glEnableVertexAttribArray(0);
         glBindBuffer(GL_ARRAY_BUFFER, points_vbo);//make this buffer current
         glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
@@ -163,16 +170,17 @@ namespace SimpleEngine{
         glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 
         return 0;
-	}
+    }
 
-	void Window::on_update() {
+    void Window::on_update() {
         glClearColor(m_background_color[0], m_background_color[1],
             m_background_color[2], m_background_color[3]);
         /* Render here */
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        glUseProgram(shader_program);
+        p_shader_program->bind();
+        //glUseProgram(shader_program);
         glBindVertexArray(vao);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -185,14 +193,14 @@ namespace SimpleEngine{
         ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
-        
+
         ImGui::ShowDemoWindow();
 
         ImGui::Begin("Background Color Window");    //Create a window
         ImGui::ColorEdit4("Background Color", m_background_color);  //Create a widget
         ImGui::End();   //Finish the window
 
-        
+
         ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
@@ -204,12 +212,12 @@ namespace SimpleEngine{
         glfwPollEvents();
     }
 
-	void Window::shutdown() {
+    void Window::shutdown() {
         glfwDestroyWindow(m_pWindow);
         glfwTerminate();
-	}
+    }
 
-	Window::~Window() {
+    Window::~Window() {
         shutdown();
     }
 }

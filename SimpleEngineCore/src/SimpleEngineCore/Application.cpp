@@ -19,7 +19,7 @@ namespace SimpleEngine{
 
 		m_event_dispatcher.add_event_listener<EventMouseMoved>(
 			[](EventMouseMoved& _event) {
-				LOG_INFO("[Mouse Moved] Mouse moved to {0}x{1}", _event.x, _event.y);
+				//LOG_INFO("[Mouse Moved] Mouse moved to {0}x{1}", _event.x, _event.y);
 			});
 
 		m_event_dispatcher.add_event_listener<EventWindowResize>(
