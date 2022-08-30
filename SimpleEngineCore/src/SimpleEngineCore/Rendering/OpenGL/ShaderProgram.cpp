@@ -1,7 +1,6 @@
 #include "ShaderProgram.hpp"
 #include "SimpleEngineCore/Log.hpp"
 #include <glad/glad.h>
-#include <iostream>
 
 namespace SimpleEngine {
 	bool create_shader(const char* source, const GLenum shader_type, GLuint& shader_id) {
@@ -24,7 +23,6 @@ namespace SimpleEngine {
 	ShaderProgram::ShaderProgram(const char* vertex_shader_src,
 		const char* fragment_shader_src) {
 		
-		std::cout << fragment_shader_src << std::endl;
 		GLuint vertex_shader_id = 0;
 		if (!create_shader(vertex_shader_src, GL_VERTEX_SHADER, vertex_shader_id)) {
 			LOG_CRITICAL("VERTEX SHADER: compile-time error");
@@ -78,7 +76,7 @@ namespace SimpleEngine {
 		glUseProgram(0);
 	}
 
-	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) {
+	ShaderProgram& ShaderProgram::operator=(ShaderProgram&& shaderProgram) noexcept {
 		glDeleteProgram(m_id);
 		m_id = shaderProgram.m_id;
 		m_isCompiled = shaderProgram.m_isCompiled;
@@ -88,7 +86,7 @@ namespace SimpleEngine {
 		return *this;
 	}
 
-	 ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram) {
+	 ShaderProgram::ShaderProgram(ShaderProgram&& shaderProgram) noexcept{
 		 m_id = shaderProgram.m_id;
 		 m_isCompiled = shaderProgram.m_isCompiled;
 
