@@ -26,6 +26,12 @@ namespace SimpleEngine {
         0.0f, 0.0f, 1.0f
     };
 
+    GLfloat positions_colors[] = {
+        0.0f,  0.5f, 0.0f,     1.0f, 0.0f, 0.0f,
+        0.5f, -0.5f, 0.0f,     0.0f, 1.0f, 0.0f,
+       -0.5f, -0.5f, 0.0f,     0.0f, 0.0f, 1.0f
+    };
+
     const char* vertex_shader =
         "#version 460\n"
         "layout(location = 0) in vec3 vertex_position;"
@@ -47,7 +53,12 @@ namespace SimpleEngine {
     std::unique_ptr<ShaderProgram> p_shader_program;
     std::unique_ptr<VertexBuffer> p_points_vbo;
     std::unique_ptr<VertexBuffer> p_colors_vbo;
-    std::unique_ptr<VertexArray>p_vao;
+    //std::unique_ptr<VertexArray>p_vao;
+
+    std::unique_ptr<VertexArray>p_vao_2buffers;
+    std::unique_ptr<VertexArray>p_vao_1buffer;
+
+    std::unique_ptr<VertexBuffer>p_positions_color_vbo;
 
     Window::Window(const std::string& title, const unsigned int& width, const unsigned int& height) :
         m_data({ title, width ,height })
@@ -134,22 +145,27 @@ namespace SimpleEngine {
             return false;
         }
 
-        p_points_vbo = std::make_unique<VertexBuffer>(points, sizeof(points));
-        p_colors_vbo = std::make_unique<VertexBuffer>(colors, sizeof(colors));
-        p_vao = std::make_unique<VertexArray>();
 
-        /*glGenVertexArrays(1, &vao);
-        glBindVertexArray(vao);
+        BufferLayout buffer_layout_1vec3{ ShaderDataType::Float3 };
 
-        glEnableVertexAttribArray(0);
-        p_points_vbo->bind();
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
+        p_vao_2buffers = std::make_unique<VertexArray>();
+        p_points_vbo = std::make_unique<VertexBuffer>(points, sizeof(points), buffer_layout_1vec3);
+        p_colors_vbo = std::make_unique<VertexBuffer>(colors, sizeof(colors), buffer_layout_1vec3);
+        
 
-        glEnableVertexAttribArray(1);
-        p_colors_vbo->bind();
-        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);*/
-        p_vao->addBuffer(*p_points_vbo);
-        p_vao->addBuffer(*p_colors_vbo);
+        p_vao_2buffers->addBuffer(*p_points_vbo);
+        p_vao_2buffers->addBuffer(*p_colors_vbo);
+
+        BufferLayout buffer_layout_2vec3{
+            ShaderDataType::Float3,
+            ShaderDataType::Float3,
+        };
+
+        p_vao_1buffer = std::make_unique<VertexArray>();
+        p_positions_color_vbo = std::make_unique<VertexBuffer>(positions_colors, sizeof(positions_colors), buffer_layout_2vec3);
+
+        p_vao_1buffer->addBuffer(*p_positions_color_vbo);
+
 
         return 0;
     }
@@ -161,10 +177,6 @@ namespace SimpleEngine {
         glClear(GL_COLOR_BUFFER_BIT);
 
 
-        p_shader_program->bind();
-        p_vao->bind();
-        glDrawArrays(GL_TRIANGLES, 0, 3);
-
 
 
         ImGuiIO& io = ImGui::GetIO();
@@ -175,10 +187,25 @@ namespace SimpleEngine {
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::ShowDemoWindow();
+        //ImGui::ShowDemoWindow();
 
         ImGui::Begin("Background Color Window");    //Create a window
         ImGui::ColorEdit4("Background Color", m_background_color);  //Create a widget
+
+        static bool use_2_buffers = true;
+        ImGui::Checkbox("2 Buffers", &use_2_buffers);
+
+        if (use_2_buffers) {
+            p_shader_program->bind();
+            p_vao_2buffers->bind();
+            glDrawArrays(GL_TRIANGLES, 0,3);
+        }
+        else {
+            p_shader_program->bind();
+            p_vao_1buffer->bind();
+            glDrawArrays(GL_TRIANGLES, 0, 3);
+        }
+
         ImGui::End();   //Finish the window
 
 
